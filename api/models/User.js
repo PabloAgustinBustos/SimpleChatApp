@@ -3,7 +3,7 @@ const uuid = require("uuid")
 
 const User = new Schema({
     id: {
-        type: SchemaTypes.UUID,
+        type: SchemaTypes.String,
         default: () => uuid.v4()
     },
 
