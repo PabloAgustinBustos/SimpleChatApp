@@ -2,7 +2,7 @@ const { Schema, model, SchemaTypes } = require("mongoose")
 const uuid = require("uuid")
 
 const User = new Schema({
-    id: {
+    _id : {
         type: SchemaTypes.String,
         default: () => uuid.v4()
     },
@@ -15,7 +15,11 @@ const User = new Schema({
     password: {
         type: SchemaTypes.String,
         required: [true, "se debe proveer la contraseña"]
-    }
+    },
+
+    friends: [{
+        _id : SchemaTypes.String
+    }]
 })
 
 module.exports = model("User", User)

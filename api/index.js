@@ -6,6 +6,7 @@ const cors = require("cors")
 const connectDB = require("./db")
 
 const user = require("./routes/user")
+const friends = require("./routes/Dashboard")
 
 const app = express()
 const server = createServer(app)
@@ -28,6 +29,7 @@ io.on("connect", socket => {
 })
 
 app.use("/user", user)
+app.use("/friends", friends)
 
 async function start(){
     try{

@@ -2,14 +2,17 @@ const User = require("../models/User")
 const jwt = require("jsonwebtoken")
 
 async function createUser(req, res){
+    
     const {username, password} = req.body
+
+    console.log(req.body)
 
     if(!username || !password) return res.status(400).json({status: false, message: "faltan credenciales"})
 
     try{
         await User.create({username, password})
     }catch(e){
-        console.log("error en la bd al crear un user")
+        console.log("error en la bd al crear un user", e)
     }
 
     res.status(200).json({new: true, username, password})
@@ -27,7 +30,7 @@ async function logIn(req, res){
         user = await User.findOne({username, password})
 
         token = jwt.sign(
-            {id: user.id, username},
+            {_id: user._id, username},
             process.env.SECRET,
             {expiresIn: "30d"}
         )
@@ -41,9 +44,50 @@ async function logIn(req, res){
     })
 }
 
-// todo: añadir amigo
+async function getUsers(req, res){
+    let users = undefined
+
+    try{
+        users = await User.find()
+        
+    }catch(e){
+        console.log("error en la bd al crear un user")
+    }
+    
+    res.status(200).json(users)
+}
+
 async function addFriend(req, res){
     const {friendId, user} = req.body
+
+    const {username, _id} = user
+    
+    try{
+        const me = await User.updateOne(
+            {username, _id}, 
+            {
+                $push: {
+                    friends: {_id: friendId}
+                }
+            }
+        )
+            
+        console.log(me)
+
+        const newFriend = await User.updateOne(
+            {_id: friendId}, 
+            {
+                $push: {
+                    friends: {_id}
+                }
+            }
+        )
+
+        console.log(newFriend)
+        
+    }catch(e){
+        console.log("error en la bd al agregar amigo", e)
+    }
 
     res.status(200).json(req.body)
 }
@@ -62,5 +106,6 @@ module.exports = {
     createUser,
     logIn,
     addFriend,
-    cleanDatabase
+    cleanDatabase,
+    getUsers
 }
