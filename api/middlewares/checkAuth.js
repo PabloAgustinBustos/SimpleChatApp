@@ -1,21 +1,23 @@
 const jwt = require("jsonwebtoken")
 
 function checkAuth(req, res, next){
-    
     const authHeader = req.headers.authorization
 
-    if(!authHeader || !authHeader.startsWith("Bearer")) throw new Error("falta el header")
+    if(!authHeader || !authHeader.startsWith("Bearer")) return res.status(400).json({status: "error-token"})
 
     const token = authHeader.split(" ")[1]
 
+    console.log(token)
     try{
         const decoded = jwt.verify(token, process.env.SECRET)
         
         console.log("decoded",decoded)
 
-        req.body.user = decoded
+        req.body._id = decoded._id
+        req.body.username = decoded.username
     }catch(e){
-        console.log("error al decodificar")
+        console.log("error al decodificar", e)
+        return res.status(400).json({status: "error-token"})
     }
     
     next()

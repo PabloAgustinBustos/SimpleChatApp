@@ -35,7 +35,8 @@ async function logIn(req, res){
             {expiresIn: "30d"}
         )
     }catch(e){
-        console.log("error en la bd al crear un user")
+        console.log("error en la bd al iniciar sesión")
+        return res.status(404).json({status: "error", message: "usuario no registrado o no encontrado"})
     }
     
     res.status(200).json({
@@ -57,11 +58,38 @@ async function getUsers(req, res){
     res.status(200).json(users)
 }
 
-async function addFriend(req, res){
-    const {friendId, user} = req.body
+async function get(req, res){
+    let users = undefined
+    const {_id, username: myUsername} = req.body
 
-    const {username, _id} = user
+    console.log(_id)
+
+    try{
+        users = await User.find({
+            "$and": [
+                {
+                    _id: {
+                        "$ne": _id
+                    }
+                },
+                {
+                    friends: {
+                        "$nin": [_id]
+                    }
+                },
+            ]
+        })
+        
+    }catch(e){
+        console.log("error en la bd al crear un user")
+    }
     
+    res.status(200).json(users)
+}
+
+async function addFriend(req, res){
+    const {friendId, _id, username} = req.body
+
     try{
         const me = await User.updateOne(
             {username, _id}, 
@@ -107,5 +135,6 @@ module.exports = {
     logIn,
     addFriend,
     cleanDatabase,
-    getUsers
+    getUsers,
+    get
 }

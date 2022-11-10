@@ -17,9 +17,9 @@ const User = new Schema({
         required: [true, "se debe proveer la contraseña"]
     },
 
-    friends: [{
-        _id : SchemaTypes.String
-    }]
+    friends: [
+        SchemaTypes.String
+    ]
 })
 
 module.exports = model("User", User)
