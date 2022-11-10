@@ -1,5 +1,6 @@
 <script>
-    import FriendLink from '../components/FriendLink.vue'
+    import { onBeforeMount } from 'vue'
+import FriendLink from '../components/FriendLink.vue'
     
     export default {
         name: "ChatView",
@@ -9,17 +10,25 @@
                 status: "loading",
                 message: "loading...",
                 friends: null,
-                users: null
+                users: null,
+                token: null
             }
         },
 
         components: {FriendLink},
 
+        beforeMount(){
+            const token = localStorage.getItem("token")
+
+            this.token = token
+        },
+
         async mounted(){
             console.log("voy a pedir los datos")
             const res = await fetch("http://localhost:3001/friends/get", {
                 headers: {
-                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2Mzk0ZTUwMi1jNDVkLTQ3MGEtOTExNy0xYTMzMWRkYjdiMzUiLCJ1c2VybmFtZSI6InBhYmxvIiwiaWF0IjoxNjY4MDQ5NzE3LCJleHAiOjE2NzA2NDE3MTd9.mgBP9il-qPTjs850JMrvr6kR1xlXAcFJaxts8tieH4Y"
+                    // "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2Mzk0ZTUwMi1jNDVkLTQ3MGEtOTExNy0xYTMzMWRkYjdiMzUiLCJ1c2VybmFtZSI6InBhYmxvIiwiaWF0IjoxNjY4MDQ5NzE3LCJleHAiOjE2NzA2NDE3MTd9.mgBP9il-qPTjs850JMrvr6kR1xlXAcFJaxts8tieH4Y"
+                    "Authorization": `Bearer ${this.token}`
                 }
             })
             const data = await res.json()
@@ -31,7 +40,8 @@
 
             const res2 = await fetch("http://localhost:3001/user/get", {
                 headers:{
-                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2Mzk0ZTUwMi1jNDVkLTQ3MGEtOTExNy0xYTMzMWRkYjdiMzUiLCJ1c2VybmFtZSI6InBhYmxvIiwiaWF0IjoxNjY4MDQ5NzE3LCJleHAiOjE2NzA2NDE3MTd9.mgBP9il-qPTjs850JMrvr6kR1xlXAcFJaxts8tieH4Y"
+                    // "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2Mzk0ZTUwMi1jNDVkLTQ3MGEtOTExNy0xYTMzMWRkYjdiMzUiLCJ1c2VybmFtZSI6InBhYmxvIiwiaWF0IjoxNjY4MDQ5NzE3LCJleHAiOjE2NzA2NDE3MTd9.mgBP9il-qPTjs850JMrvr6kR1xlXAcFJaxts8tieH4Y"
+                    "Authorization": `Bearer ${this.token}`
                 }
             })
             const data2 = await res2.json()

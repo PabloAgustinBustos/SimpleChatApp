@@ -19,10 +19,13 @@ async function createUser(req, res){
 }
 
 async function logIn(req, res){
+    // console.log("holaaaa")
     const {username, password} = req.body
 
     let user = undefined
     let token = undefined
+
+    // console.log("recibí",req.body)
 
     if(!username || !password) return res.status(400).json({status: false, message: "faltan credenciales"})
 

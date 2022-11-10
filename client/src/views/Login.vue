@@ -25,8 +25,21 @@
         },
 
         methods:{
-            logIn(){
-                // TODO: loguearse
+            async logIn(){
+                console.log(this.userData)
+
+                const res = await fetch("http://localhost:3001/user/logIn", {
+                    method: "POST",
+                    body: JSON.stringify(this.userData),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                })
+                const data = await res.json()
+
+                localStorage.setItem("token", data.token)
+
+                this.$router.push({name: "Users"})
             }
         }
     }
