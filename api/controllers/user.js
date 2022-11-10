@@ -91,7 +91,9 @@ async function get(req, res){
 }
 
 async function addFriend(req, res){
+    console.log("recibí", req.body)
     const {friendId, _id, username} = req.body
+
 
     try{
         const me = await User.updateOne(

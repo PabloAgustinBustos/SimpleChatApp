@@ -37,7 +37,7 @@
                 })
                 const data = await res.json()
 
-                localStorage.setItem("token", data.token)
+                sessionStorage.setItem("token", data.token)
 
                 this.$router.push({name: "Users"})
             }

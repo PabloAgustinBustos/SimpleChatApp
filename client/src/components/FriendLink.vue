@@ -1,20 +1,38 @@
 <script>
     import placeholder from "../assets/placeholder.png"
+    
     export default {
         name: "FriendLink",
 
         data(){
             return {
                 // friends: []
+                
                 placeholder
             }
         },
 
-        mounted(){
-            console.log(this.$props.friends)
-        },
+        props: ["friends", "title", "socket"],
 
-        props: ["friends", "title"]
+        methods: {
+            async handleClick(e){ 
+                const token = sessionStorage.getItem("token")
+                const identity = e.target.getAttribute("identity")
+
+                await fetch("http://localhost:3001/user/addFriend", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-type": "application/json; charset=UTF-8"
+                    },
+                    body: JSON.stringify({
+                        friendId: identity
+                    })
+                })
+
+                this.socket.emit("new-friend", token)
+            }
+        }
     }
 </script>
 
@@ -23,17 +41,23 @@
         <h3>{{title}} <hr/></h3>
 
         <div class="container">
-
-            <div class="friend" v-for="friend in friends" key="friend._id">
+            <div 
+                class="friend" 
+                v-for="friend in friends" 
+                key="friend._id"
+                :identity="friend._id"
+                @click="handleClick"
+            >
                 
                 <div class="img-container">
                     <img 
+                        :identity="friend._id"
                         class="img"
                         :src="!friend?.img ? placeholder : friend.img "
                     />
                 </div>
                 
-                <p class="name">{{friend?.username}}</p>
+                <p class="name" :identity="friend._id">{{friend?.username}}</p>
             
             </div>
         </div>

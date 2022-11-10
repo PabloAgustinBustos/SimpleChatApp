@@ -26,6 +26,17 @@ io.on("connect", socket => {
     socket.on("disconnect", () => {
         console.log("se desconectó")
     })
+
+    socket.on("new-friend", (token) => {
+        console.log("se añadió un nuevo amigo")
+        io.emit("update-list", token)
+    })
+})
+
+app.use((req, res, next) => {
+    console.log("se hizo petición", req.method, req.url)
+
+    next()
 })
 
 app.use("/user", user)

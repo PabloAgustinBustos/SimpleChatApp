@@ -1,6 +1,6 @@
 <script>
-    import { onBeforeMount } from 'vue'
-import FriendLink from '../components/FriendLink.vue'
+    import {io} from "socket.io-client"
+    import FriendLink from '../components/FriendLink.vue'
     
     export default {
         name: "ChatView",
@@ -11,45 +11,65 @@ import FriendLink from '../components/FriendLink.vue'
                 message: "loading...",
                 friends: null,
                 users: null,
-                token: null
+                token: null,
+                socket: null,
             }
         },
 
         components: {FriendLink},
 
+        watch: {
+            token(current, prev){
+                if(current !== null){
+                    this.socket = io("http://localhost:3002")
+
+                    this.socket.on("update-list", (token) => {
+                        if(token == this.token) {
+                            console.log("se actualiza")
+                            this.updateList()
+                        }
+                    })
+                }
+            }
+        },
+
         beforeMount(){
-            const token = localStorage.getItem("token")
+            // this.socket = io("http://localhost:3002")
+            const token = sessionStorage.getItem("token")
 
             this.token = token
         },
 
         async mounted(){
-            console.log("voy a pedir los datos")
-            const res = await fetch("http://localhost:3001/friends/get", {
-                headers: {
-                    // "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2Mzk0ZTUwMi1jNDVkLTQ3MGEtOTExNy0xYTMzMWRkYjdiMzUiLCJ1c2VybmFtZSI6InBhYmxvIiwiaWF0IjoxNjY4MDQ5NzE3LCJleHAiOjE2NzA2NDE3MTd9.mgBP9il-qPTjs850JMrvr6kR1xlXAcFJaxts8tieH4Y"
-                    "Authorization": `Bearer ${this.token}`
-                }
-            })
-            const data = await res.json()
+            this.updateList()
+        },
 
-            if(data.status === "error-token") {
-                this.message = "No autorizado. Debe iniciar sesión"
-                return
+        methods: {
+            async updateList(){
+                const res = await fetch("http://localhost:3001/friends/get", {
+                    headers: {
+                        "Authorization": `Bearer ${this.token}`
+                    }
+                })
+                const friends = await res.json()
+
+                if(friends.status === "error-token") {
+                    this.message = "No autorizado. Debe iniciar sesión"
+                    return
+                }
+
+                const res2 = await fetch("http://localhost:3001/user/get", {
+                    headers:{
+                        "Authorization": `Bearer ${this.token}`
+                    }
+                })
+                const users = await res2.json()
+
+                
+                this.status = "data"
+                this.friends = friends
+                this.users = users
             }
-
-            const res2 = await fetch("http://localhost:3001/user/get", {
-                headers:{
-                    // "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2Mzk0ZTUwMi1jNDVkLTQ3MGEtOTExNy0xYTMzMWRkYjdiMzUiLCJ1c2VybmFtZSI6InBhYmxvIiwiaWF0IjoxNjY4MDQ5NzE3LCJleHAiOjE2NzA2NDE3MTd9.mgBP9il-qPTjs850JMrvr6kR1xlXAcFJaxts8tieH4Y"
-                    "Authorization": `Bearer ${this.token}`
-                }
-            })
-            const data2 = await res2.json()
-
-            
-            this.status = "data"
-            this.friends = data
-            this.users = data2
         }
     }
 </script>
@@ -63,15 +83,15 @@ import FriendLink from '../components/FriendLink.vue'
                 <FriendLink 
                     class="friends"
                     :friends="friends"
+                    :socket="socket"
                     title="mis amigos"
                 />
                 
-                
-                
                 <FriendLink 
-                class="friends"
-                :friends="users"
-                title="usuarios"
+                    class="friends"
+                    :friends="users"
+                    :socket="socket"
+                    title="usuarios"
                 />
             </div>
     
